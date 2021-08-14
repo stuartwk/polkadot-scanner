@@ -1,0 +1,21 @@
+table {
+  tbody {
+    tr {
+      td {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-right: 1px solid rgba(229, 231, 235, 0.2);
+        border-left: 1px solid rgba(229, 231, 235, 0.2);
+      }
+    }
+  }
+
+  tbody:nth-child(even) {
+    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  }
+
+  tbody:nth-child(odd) {
+    background-color: rgba(229, 231, 235, 0.5);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  }
+}
