@@ -51,6 +51,7 @@ function QueryEventsForm({
                             name="startBlock"
                             id="startBlock"
                             value={startBlock}
+                            disabled={formDisabled}
                             type="number"
                             onChange={(e) => onStartBlockChange(+e.target.value)}
                             required />
@@ -66,6 +67,7 @@ function QueryEventsForm({
                             aria-label="end-block-input"
                             type="number"
                             value={endBlock}
+                            disabled={formDisabled}
                             onChange={(e) => onEndBlockChange(+e.target.value)}
                             required />
                     </div>

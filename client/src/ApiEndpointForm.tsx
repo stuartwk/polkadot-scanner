@@ -3,10 +3,12 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 
 type ApiEndpointFormProps = {
     onSubmit(api: ApiPromise): void;
+    fetchingBlockData: boolean;
 }
 
 function ApiEndpointForm({
     onSubmit,
+    fetchingBlockData
 }: ApiEndpointFormProps) {
     const [endpointValid, setEndpointValid] = useState(false);
     const [endpoint, setEndpoint] = useState('wss://rpc.polkadot.io');
@@ -35,7 +37,7 @@ function ApiEndpointForm({
         setLoading(false);
     }
 
-    const isDisabled = (): boolean => !endpointValid || loading;
+    const isDisabled = (): boolean => !endpointValid || loading || fetchingBlockData;
 
     return (
         <div className="w-full">
@@ -51,6 +53,7 @@ function ApiEndpointForm({
                             id="polkadotEndpoint"
                             placeholder="wss://rpc.polkadot.io"
                             value={endpoint}
+                            disabled={isDisabled()}
                             onChange={(e) => setEndpoint(e.target.value)}
                             required />
                     </div>

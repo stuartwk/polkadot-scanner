@@ -61,7 +61,7 @@ function App() {
         setBlocksScanned(true);
 
         for (let i = startBlock; i <= endBlock; i++) {
-          fetchBlockEvents({api, blockNumber: i});
+          await fetchBlockEvents({api, blockNumber: i});
         }
     }
   }
@@ -128,7 +128,7 @@ function App() {
                   <span className="text-green-600 cursor-pointer">{latestBlock}</span>
                 </div>
               </div>
-              <ApiEndpointForm onSubmit={(api) => setApi(api)} />
+              <ApiEndpointForm onSubmit={(api) => setApi(api)} fetchingBlockData={fetchingBlockData} />
 
               <QueryEventsForm 
                 startBlock={startBlock} 
