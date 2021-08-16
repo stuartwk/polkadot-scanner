@@ -1,43 +1,29 @@
 import React,  { useState, useEffect }  from 'react';
-import { ApiPromise, WsProvider } from '@polkadot/api';
 
 type ApiEndpointFormProps = {
-    onSubmit(api: ApiPromise): void;
-    fetchingBlockData: boolean;
+    updateEndpoint(endpoint: string): void;
+    apiError: boolean;
+    formsDisabled: boolean;
 }
 
 function ApiEndpointForm({
-    onSubmit,
-    fetchingBlockData
+    updateEndpoint,
+    apiError,
+    formsDisabled
 }: ApiEndpointFormProps) {
     const [endpointValid, setEndpointValid] = useState(false);
     const [endpoint, setEndpoint] = useState('wss://rpc.polkadot.io');
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setEndpointValid(endpoint.length > 0 && (endpoint.includes('https://') || endpoint.includes('wss://')));
+        setEndpointValid(endpoint.length > 0 && endpoint.includes('wss://'));
     }, [endpoint])
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-
-        setLoading(true);
-        const wsProvider = new WsProvider(endpoint);
-        const api = new ApiPromise({ provider: wsProvider });
-
-        try {
-            await api.isReadyOrError;
-            setEndpointValid(true);
-            onSubmit(api);
-        } catch (error) {
-            api.disconnect();
-            setEndpointValid(false);
-        }
-
-        setLoading(false);
+        updateEndpoint(endpoint);
     }
 
-    const isDisabled = (): boolean => !endpointValid || loading || fetchingBlockData;
+    const isDisabled = (): boolean => !endpointValid || formsDisabled;
 
     return (
         <div className="w-full">
@@ -53,15 +39,15 @@ function ApiEndpointForm({
                             id="polkadotEndpoint"
                             placeholder="wss://rpc.polkadot.io"
                             value={endpoint}
-                            disabled={isDisabled()}
+                            disabled={formsDisabled}
                             onChange={(e) => setEndpoint(e.target.value)}
                             required />
                     </div>
                 </div>
                 <div className="w-full mb-2">
                     <span className="text-red-500 text-xs">
-                        {(endpoint.length <= 0 || (!endpoint.includes('https://') && !endpoint.includes('wss://'))) && ("Please enter a valid endpoint")}
-                        {!endpointValid && ("Error connecting to endpoint")}
+                        {(endpoint.length <= 0 || !endpoint.includes('wss://')) && ("Please enter a valid endpoint")}
+                        {apiError && ("Error connecting to endpoint")}
                     </span>
                 </div>
                 <div className="w-full">

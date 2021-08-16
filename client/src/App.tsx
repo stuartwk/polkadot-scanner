@@ -18,6 +18,8 @@ function App() {
   const [blockEvents, setBlockEvents] = useState<BlockEventItem[]>([]);
   const [fetchingBlockData, setFetchingBlockData] = useState(false);
   const [blocksScanned, setBlocksScanned] = useState(false);
+  const [formsDisabled, setFormsDisabled] = useState(false);
+  const [apiError, setApiError] = useState(false);
 
   // /** Init PolkaDot API */
   useEffect( () => {
@@ -50,6 +52,7 @@ function App() {
   useEffect( () => {
     if (fetchedBlockCount >= endBlock - startBlock) {
       setFetchingBlockData(false);
+      setFormsDisabled(false);
     }
   }, [fetchedBlockCount, startBlock, endBlock]);
 
@@ -58,12 +61,30 @@ function App() {
         setfetchedBlockCount(0);
         setBlockEvents([]);
         setFetchingBlockData(true);
+        setFormsDisabled(true);
         setBlocksScanned(true);
 
         for (let i = startBlock; i <= endBlock; i++) {
           await fetchBlockEvents({api, blockNumber: i});
         }
     }
+  }
+
+  const updateApi = async (endpoint: string) => {
+        setFormsDisabled(true);
+        const wsProvider = new WsProvider(endpoint);
+        const api = new ApiPromise({ provider: wsProvider });
+
+        try {
+            await api.isReadyOrError;
+            setApiError(false);
+            setApi(api);
+        } catch (error) {
+            api.disconnect();
+            setApiError(true);
+        }
+
+        setFormsDisabled(false);
   }
 
   const fetchBlockEvents = async ({api, blockNumber}:{api: ApiPromise, blockNumber: number}) => {
@@ -128,7 +149,7 @@ function App() {
                   <span className="text-green-600 cursor-pointer">{latestBlock}</span>
                 </div>
               </div>
-              <ApiEndpointForm onSubmit={(api) => setApi(api)} fetchingBlockData={fetchingBlockData} />
+              <ApiEndpointForm updateEndpoint={(endpoint) => updateApi(endpoint)} apiError={apiError} formsDisabled={formsDisabled} />
 
               <QueryEventsForm 
                 startBlock={startBlock} 
@@ -136,7 +157,7 @@ function App() {
                 endBlock={endBlock}
                 onEndBlockChange={(block) => setEndBlock(block)}
                 onSubmit={searchBlocks}
-                formDisabled={fetchingBlockData}
+                formDisabled={formsDisabled}
                 latestBlock={latestBlock}
               />
 
@@ -146,7 +167,7 @@ function App() {
               )}
 
               {/** Events Table */}
-              {!fetchingBlockData && (
+              {!formsDisabled && (
                 <div className="pb-6">
                   <EventsTable blockEventItems={blockEvents} blocksScanned={blocksScanned} />
                 </div>
